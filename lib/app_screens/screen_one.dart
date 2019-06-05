@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_app_first/app_screens/screen_two.dart';
 
 class ScreenOne extends StatelessWidget { //a stateless widget is not dynamic.
-  // It doesn’t depend on any data other than that that is passed into it
+  // It doesn’t depend on any data other than that is passed into it
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +61,7 @@ class ScreenOne extends StatelessWidget { //a stateless widget is not dynamic.
                 },
               ), //Raised Button
             ],
-          ),
+          ),//Column
         ));
   }
 }

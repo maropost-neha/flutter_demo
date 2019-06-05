@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:my_app_first/app_screens/note_detail.dart';
-import 'package:my_app_first/models/note.dart';
+import 'package:my_app_first/model/note.dart';
 import 'package:my_app_first/utils/database_helper.dart';
-import 'package:sqflite/sqlite_api.dart';
+import 'package:my_app_first/app_screens/note_detail.dart';
+import 'package:sqflite/sqflite.dart';
+
 
 class NoteList extends StatefulWidget {
+
   @override
   State<StatefulWidget> createState() {
     return NoteListState();
@@ -12,6 +15,7 @@ class NoteList extends StatefulWidget {
 }
 
 class NoteListState extends State<NoteList> {
+
   DatabaseHelper databaseHelper = DatabaseHelper();
   List<Note> noteList;
   int count = 0;
@@ -35,7 +39,7 @@ class NoteListState extends State<NoteList> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           debugPrint('FAB clicked');
-          navigateToDetail(Note('', '',''), 'Add Note');
+          addEditNoteScreen(Note('', ''), 'Add Note');
         },
 
         tooltip: 'Add Note',
@@ -47,7 +51,6 @@ class NoteListState extends State<NoteList> {
   }
 
   ListView getNoteListView() {
-
     TextStyle titleStyle = Theme.of(context).textTheme.subhead;
 
     return ListView.builder(
@@ -57,27 +60,21 @@ class NoteListState extends State<NoteList> {
           color: Colors.white,
           elevation: 2.0,
           child: ListTile(
-
             leading: CircleAvatar(
-              backgroundColor: Colors.yellow,
-              child: Icon(Icons.arrow_forward),
+              backgroundColor: Colors.yellow
             ),
-
             title: Text(this.noteList[position].title, style: titleStyle,),
-
             subtitle: Text(this.noteList[position].date),
-
             trailing: GestureDetector(
               child: Icon(Icons.delete, color: Colors.grey,),
               onTap: () {
-                _delete(context, noteList[position]);
+                deleteEntry(context, noteList[position]);
               },
             ),
 
-
             onTap: () {
               debugPrint("ListTile Tapped");
-              navigateToDetail(this.noteList[position],'Edit Note');
+              addEditNoteScreen(this.noteList[position],'Edit Note');
             },
 
           ),
@@ -85,53 +82,22 @@ class NoteListState extends State<NoteList> {
       },
     );
   }
-
-  // Returns the priority color
-  Color getPriorityColor(int priority) {
-    switch (priority) {
-      case 1:
-        return Colors.red;
-        break;
-      case 2:
-        return Colors.yellow;
-        break;
-
-      default:
-        return Colors.yellow;
-    }
-  }
-
-  // Returns the priority icon
-  Icon getPriorityIcon(int priority) {
-    switch (priority) {
-      case 1:
-        return Icon(Icons.play_arrow);
-        break;
-      case 2:
-        return Icon(Icons.keyboard_arrow_right);
-        break;
-
-      default:
-        return Icon(Icons.keyboard_arrow_right);
-    }
-  }
-
-  void _delete(BuildContext context, Note note) async {
+  
+  void deleteEntry(BuildContext context, Note note) async {
 
     int result = await databaseHelper.deleteNote(note.id);
     if (result != 0) {
-      _showSnackBar(context, 'Note Deleted Successfully');
+      showSnackBar(context, 'Note Deleted Successfully');
       updateListView();
     }
   }
 
-  void _showSnackBar(BuildContext context, String message) {
-
+  void showSnackBar(BuildContext context, String message) {
     final snackBar = SnackBar(content: Text(message));
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
-  void navigateToDetail(Note note, String title) async {
+  void addEditNoteScreen(Note note, String title) async {
     bool result = await Navigator.push(context, MaterialPageRoute(builder: (context) {
       return NoteDetail(note, title);
     }));
@@ -142,7 +108,6 @@ class NoteListState extends State<NoteList> {
   }
 
   void updateListView() {
-
     final Future<Database> dbFuture = databaseHelper.initializeDatabase();
     dbFuture.then((database) {
 
