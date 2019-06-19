@@ -1,54 +1,62 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-import 'app_screens/anim_one.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text('Animation'),
-          ),
-          body: AnimOne(),
-        ));
+  State<StatefulWidget> createState() {
+    return AnimationDemoSate();
   }
 }
 
-class MapSample extends StatefulWidget {
-  @override
-  State<MapSample> createState() => MapSampleState();
-}
-
-class MapSampleState extends State<MapSample> {
-  Completer<GoogleMapController> _controller = Completer();
-  Set<Marker> markers = Set();
-
-  static final CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(21.7679, 78.8718),
-    zoom: 4.0,
-  );
+class AnimationDemoSate extends State<MyApp> with TickerProviderStateMixin {
+  AnimationController animationController;
 
   @override
-  Widget build(BuildContext context) {
-    markers.add(
-      Marker(markerId: MarkerId('value'), position: LatLng(21.7679, 78.8718)),
-    );
+  void initState() {
+    super.initState();
+    animationController = AnimationController(
+        value: 50.0,
+        lowerBound: 50.0,
+        upperBound: 320.0,
+        duration: Duration(seconds: 3),
+        vsync: this);
+  }
 
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition: _kGooglePlex,
-      markers: markers,
-      onMapCreated: (GoogleMapController controller) {
-        _controller.complete(controller);
-      },
-    );
+  @override
+  Widget build(context) {
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(
+            title: Text('Animation Demo'),
+          ),
+          body: GestureDetector(
+            onTap: () {
+              final status = animationController.status;
+              if (status == AnimationStatus.completed) {
+                animationController.reverse();
+              } else {
+                animationController.animateTo(320.0, curve: Curves.bounceIn);
+              }
+            },
+            child: Center(
+              child: AnimatedBuilder(
+                animation: animationController,
+                builder: (context, child) {
+                  return Container(
+                    child: child,
+                    height: animationController.value,
+                    width: animationController.value,
+                  );
+                },
+                child: Container(
+                  color: Colors.red,
+                  constraints: BoxConstraints.expand(),
+                ),
+              ),
+            ),
+          ),
+        ));
   }
 }
